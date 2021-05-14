@@ -1,4 +1,4 @@
-from PySide2.QtCore import (QFile, QFileInfo, QIODevice, QTextStream)
+from PySide2.QtCore import (QFile, QFileInfo, QIODevice, QTextStream, Qt, Signal, QThread)
 from PySide2.QtWidgets import (QMainWindow, QApplication, QTableWidgetItem, QFileDialog)
 
 import time
@@ -18,7 +18,9 @@ class Monitor(QMainWindow):
 
         #Buttons click
         self.ui.btnBrowse.clicked.connect(self.btnBrowsePressed)
-        self.ui.btnFindFile.clicked.connect(self.btnFindFileclicked)
+        self.thread = File_Thread()
+        self.thread.mysignal.connect(self.btnFindFileclicked, Qt.QueuedConnection)
+        self.ui.btnFindFile.clicked.connect(self.thread.start)
 
     def btnBrowsePressed(self):
         folder_name = QFileDialog.getExistingDirectory()
@@ -97,6 +99,12 @@ class Monitor(QMainWindow):
                         return True
                 return False
 
+
+class File_Thread(QThread):
+    mysignal = Signal()
+    def run(self) -> None:
+        self.mysignal.emit()
+        time.sleep(5)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
