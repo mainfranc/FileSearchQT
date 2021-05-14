@@ -9,7 +9,7 @@
 ################################################################################
 
 from PySide2.QtCore import *
-from PySide2.QtGui import *
+from PySide2 import QtGui
 from PySide2.QtWidgets import *
 
 
@@ -110,15 +110,20 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4 = QHBoxLayout(self.frame_2)
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.tblFiles = QTableWidget(self.frame_2)
-        if (self.tblFiles.columnCount() < 2):
-            self.tblFiles.setColumnCount(2)
+        if (self.tblFiles.columnCount() < 3):
+            self.tblFiles.setColumnCount(3)
         __qtablewidgetitem = QTableWidgetItem()
         self.tblFiles.setHorizontalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
         self.tblFiles.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        __qtablewidgetitem2 = QTableWidgetItem()
+        self.tblFiles.setHorizontalHeaderItem(2, __qtablewidgetitem2)
         self.tblFiles.setObjectName(u"tblFiles")
         self.tblFiles.setEnabled(True)
-
+        header = self.tblFiles.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
         self.horizontalLayout_4.addWidget(self.tblFiles)
 
 
@@ -172,7 +177,9 @@ class Ui_MainWindow(object):
         ___qtablewidgetitem = self.tblFiles.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"File name", None));
         ___qtablewidgetitem1 = self.tblFiles.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Size", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"File path", None));
+        ___qtablewidgetitem2 = self.tblFiles.horizontalHeaderItem(2)
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Size", None));
         self.lblStatus.setText(QCoreApplication.translate("MainWindow", u"", None))
         self.btnFindFile.setText(QCoreApplication.translate("MainWindow", u"Find", None))
     # retranslateUi

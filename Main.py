@@ -1,6 +1,5 @@
-from PySide2.QtCore import (Signal, QThread, Qt, QSettings, QFile, QIODevice, QTextStream)
-from PySide2.QtGui import QCloseEvent, QDesktopServices
-from PySide2.QtWidgets import QMainWindow, QWidget, QApplication, QDialog, QTableWidgetItem, QFileDialog
+from PySide2.QtCore import (QFile, QFileInfo, QIODevice, QTextStream)
+from PySide2.QtWidgets import (QMainWindow, QApplication, QTableWidgetItem, QFileDialog)
 
 import time
 import re
@@ -47,24 +46,29 @@ class Monitor(QMainWindow):
 
     def update_table(self):
         self.ui.tblFiles.clearContents()
-        for row in range(self.ui.tblFiles.rowCount()):
+        for row in range(self.ui.tblFiles.rowCount(), -1, -1):
             self.ui.tblFiles.removeRow(row)
         rowPosition = 0
         for i in self.result:
             self.ui.tblFiles.insertRow(rowPosition)
-            self.ui.tblFiles.setItem(rowPosition, 0, QTableWidgetItem(i[1] + "/" + i[0]))
+            self.ui.tblFiles.setItem(rowPosition, 0, QTableWidgetItem(i[0]))
+            self.ui.tblFiles.setItem(rowPosition, 1, QTableWidgetItem(i[1] + "/"))
+            file_size = QFileInfo(i[1] + "/" + i[0]).size()
+            self.ui.tblFiles.setItem(rowPosition, 2, QTableWidgetItem(str(round(file_size / 1024, 1)) + ' kb'))
             rowPosition += 1
         self.ui.lblStatus.setText(f"{self.match_count} file{'s' if self.match_count else ''} found")
 
     def check_is_right(self, filename, filepath):
         self.regex_filename = self.ui.chkFileNameReg.isChecked()
         self.regex_text = self.ui.chkTextToFindReg.isChecked()
+        if filename[-4:] == '.exe':
+            return False
         return all((self.file_name_appl(filename), self.text_in_file(filename, filepath)))
 
     def file_name_appl(self, filename):
         fn_to_search = self.ui.txtFileName.text()
         if self.regex_filename:
-            does_match = re.compile(fn_to_search).match
+            does_match = re.compile(r"\\" + fn_to_search).match
             if does_match(filename):
                 return True
             return False
@@ -78,7 +82,8 @@ class Monitor(QMainWindow):
         text_in = QTextStream(inFile)
         txt_to_find = self.ui.txtTextToFind.text()
         if self.regex_text:
-            does_match = re.compile(txt_to_find).match
+
+            does_match = re.compile(r"\\" + txt_to_find).match
         if inFile.open(QIODevice.ReadOnly):
             while not text_in.atEnd():
                 line = text_in.readLine()
