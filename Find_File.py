@@ -170,7 +170,9 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Find File", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"File name", None))
         self.chkFileNameReg.setText(QCoreApplication.translate("MainWindow", u"Use Regex", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Text to find", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Text to find \n"
+                                                                      u"(use prefix 'b!' \n"
+                                                                      u"for bin signature search)", None))
         self.chkTextToFindReg.setText(QCoreApplication.translate("MainWindow", u"Use Regex", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Directory", None))
         self.btnBrowse.setText(QCoreApplication.translate("MainWindow", u"Browse folder", None))

@@ -1,11 +1,22 @@
-from PySide2.QtCore import (QFile, QFileInfo, QIODevice, QTextStream, Qt, Signal, QThread)
-from PySide2.QtWidgets import (QMainWindow, QApplication, QTableWidgetItem, QFileDialog)
+from PySide2.QtCore import (QFile,
+                            QFileInfo,
+                            QIODevice,
+                            QTextStream,
+                            Qt,
+                            Signal,
+                            QThread)
+from PySide2.QtWidgets import (QMainWindow,
+                               QApplication,
+                               QTableWidgetItem,
+                               QFileDialog)
 
 import time
 import re
-import os, sys
+import os
+import sys
 
 import Find_File
+
 
 class Monitor(QMainWindow):
     def __init__(self, parent=None):
@@ -14,11 +25,12 @@ class Monitor(QMainWindow):
         self.ui.setupUi(self)
         self.regex_filename = False
         self.regex_text = False
+        self.bin_sign = False
+        self.result = []
         self.match_count = 0
-
-        #Buttons click
+        # tBtons click
         self.ui.btnBrowse.clicked.connect(self.btnBrowsePressed)
-        self.thread = File_Thread()
+        self.thread = FileThread()
         self.thread.mysignal.connect(self.btnFindFileclicked, Qt.QueuedConnection)
         self.ui.btnFindFile.clicked.connect(self.thread.start)
 
@@ -63,6 +75,7 @@ class Monitor(QMainWindow):
     def check_is_right(self, filename, filepath):
         self.regex_filename = self.ui.chkFileNameReg.isChecked()
         self.regex_text = self.ui.chkTextToFindReg.isChecked()
+        self.bin_sign = True if self.ui.txtTextToFind.text()[:2] == 'b!' else False
         if filename[-4:] == '.exe':
             return False
         return all((self.file_name_appl(filename), self.text_in_file(filename, filepath)))
@@ -84,27 +97,37 @@ class Monitor(QMainWindow):
         text_in = QTextStream(inFile)
         txt_to_find = self.ui.txtTextToFind.text()
         if self.regex_text:
-
             does_match = re.compile(r"\\" + txt_to_find).match
         if inFile.open(QIODevice.ReadOnly):
             while not text_in.atEnd():
                 line = text_in.readLine()
+                # regex search
                 if self.regex_text:
                     if does_match(line):
                         self.match_count += 1
                         return True
                 else:
-                    if txt_to_find in line:
-                        self.match_count += 1
-                        return True
+                    # binary sig search
+                    if self.bin_sign:
+                        txt_to_find = txt_to_find[2:].encode()
+                        if txt_to_find in line.encode():
+                            self.match_count += 1
+                            return True
+                    # original search
+                    else:
+                        if txt_to_find in line:
+                            self.match_count += 1
+                            return True
                 return False
 
 
-class File_Thread(QThread):
+class FileThread(QThread):
     mysignal = Signal()
+
     def run(self) -> None:
         self.mysignal.emit()
         time.sleep(5)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
